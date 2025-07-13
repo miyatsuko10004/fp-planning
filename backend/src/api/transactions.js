@@ -31,9 +31,27 @@ router.post('/', async (req, res) => {
 // 収支一覧を取得
 router.get('/', async (req, res) => {
   const userId = req.user.id;
+  const { startDate, endDate } = req.query;
+
+  let query = 'SELECT * FROM transactions WHERE user_id = $1';
+  const params = [userId];
+  let paramIndex = 2;
+
+  if (startDate) {
+    query += ` AND date >= ${paramIndex}`;
+    params.push(startDate);
+    paramIndex++;
+  }
+  if (endDate) {
+    query += ` AND date <= ${paramIndex}`;
+    params.push(endDate);
+    paramIndex++;
+  }
+
+  query += ' ORDER BY date DESC';
 
   try {
-    const transactions = await db.query('SELECT * FROM transactions WHERE user_id = $1 ORDER BY date DESC', [userId]);
+    const transactions = await db.query(query, params);
     res.json(transactions.rows);
   } catch (error) {
     console.error(error);
