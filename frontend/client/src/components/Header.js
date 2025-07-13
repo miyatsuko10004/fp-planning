@@ -15,6 +15,7 @@ function Header() {
           <Button color="inherit" component={Link} to="/transactions">収支一覧</Button>
           <Button color="inherit" component={Link} to="/login">ログイン</Button>
           <Button color="inherit" component={Link} to="/register">新規登録</Button>
+          <Button color="inherit" component={Link} to="/analysis">分析・レポート</Button>
         </Box>
       </Toolbar>
     </AppBar>

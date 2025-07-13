@@ -6,6 +6,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import TransactionForm from './components/TransactionForm';
 import TransactionList from './components/TransactionList';
+import AnalysisReport from './components/AnalysisReport'; // AnalysisReportをインポート
 import Header from './components/Header';
 
 function App() {
@@ -19,6 +20,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/transactions/new" element={<TransactionForm />} />
         <Route path="/transactions" element={<TransactionList />} />
+        <Route path="/transactions/edit/:id" element={<TransactionForm />} /> {/* 編集用ルートを追加 */}
+        <Route path="/analysis" element={<AnalysisReport />} /> {/* 新しいルートを追加 */}
       </Routes>
     </Router>
   );
