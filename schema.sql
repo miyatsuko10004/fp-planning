@@ -35,10 +35,15 @@ CREATE TABLE transactions (
 );
 
 
--- categories テーブル (スキーマの定義が必要です)
--- CREATE TABLE categories (
---   ...
--- );
+-- categories テーブル
+CREATE TABLE categories (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id),
+    name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(user_id, name) -- ユーザーごとにカテゴリ名はユニーク
+);
 
 -- goals テーブル (スキーマの定義が必要です)
 -- CREATE TABLE goals (

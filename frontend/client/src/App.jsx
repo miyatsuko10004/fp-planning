@@ -20,6 +20,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/transactions/new" element={<TransactionForm />} />
         <Route path="/transactions" element={<TransactionList />} />
+        <Route path="/transactions/edit/:id" element={<TransactionForm />} /> {/* 編集用ルートを追加 */}
         <Route path="/analysis" element={<AnalysisReport />} /> {/* 新しいルートを追加 */}
       </Routes>
     </Router>

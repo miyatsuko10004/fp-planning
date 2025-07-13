@@ -1,13 +1,60 @@
-import React from 'react';
-import { Box, Typography, Container, List, ListItem, ListItemText, Divider } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Container, List, ListItem, ListItemText, Divider, CircularProgress, Alert, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function TransactionList() {
-  // 仮のデータ
-  const transactions = [
-    { id: 1, date: '2023-07-01', description: '食費', amount: -5000, type: 'expense' },
-    { id: 2, date: '2023-07-05', description: '給料', amount: 200000, type: 'income' },
-    { id: 3, date: '2023-07-10', description: '交通費', amount: -1200, type: 'expense' },
-  ];
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      try {
+        const response = await axios.get('http://localhost:8080/transactions', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setTransactions(response.data);
+      } catch (err) {
+        console.error(err);
+        setError(err.response?.data?.message || 'データの取得に失敗しました。');
+        // 認証エラーの場合はログインページへリダイレクト
+        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+          localStorage.removeItem('token');
+          navigate('/login');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, [navigate]);
+
+  if (loading) {
+    return (
+      <Container maxWidth="md" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="md" sx={{ my: 4 }}>
+        <Alert severity="error">{error}</Alert>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="md">
@@ -15,19 +62,29 @@ function TransactionList() {
         <Typography variant="h4" component="h1" gutterBottom>
           収支一覧
         </Typography>
-        <List>
-          {transactions.map((transaction) => (
-            <React.Fragment key={transaction.id}>
-              <ListItem>
-                <ListItemText
-                  primary={`${transaction.date}: ${transaction.description}`}
-                  secondary={`金額: ${transaction.amount}円 (${transaction.type === 'income' ? '収入' : '支出'})`}
-                />
-              </ListItem>
-              <Divider />
-            </React.Fragment>
-          ))}
-        </List>
+        {transactions.length === 0 ? (
+          <Typography variant="body1" color="textSecondary">
+            まだ収支データがありません。
+          </Typography>
+        ) : (
+          <List>
+            {transactions.map((transaction) => (
+              <React.Fragment key={transaction.id}>
+                <ListItem secondaryAction={
+                    <Button edge="end" aria-label="edit" onClick={() => navigate(`/transactions/edit/${transaction.id}`)}>
+                      編集
+                    </Button>
+                  }>
+                  <ListItemText
+                    primary={`${new Date(transaction.date).toLocaleDateString()}: ${transaction.description}`}
+                    secondary={`金額: ${transaction.amount}円 (${transaction.type === 'income' ? '収入' : '支出'})`}
+                  />
+                </ListItem>
+                <Divider />
+              </React.Fragment>
+            ))}
+          </List>
+        )}
       </Box>
     </Container>
   );
